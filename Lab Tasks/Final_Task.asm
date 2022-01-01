@@ -146,7 +146,7 @@
     EvenNumPushed:
      
     LEA DX,space          ;printing a space
-    MOV AH,9              ;printing the prompt
+    MOV AH,9              ;printing the space
     INT 21H               ;interrupt
     
     INC SI                ;idx++
