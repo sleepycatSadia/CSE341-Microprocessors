@@ -152,7 +152,9 @@
     INC SI                ;idx++
    
     LOOP InputArray       ;if idx<10
-    JMP  CalculateSum     ;now go to calculate SUM
+    JMP  CalculateSum     ;else if idx>=10
+                          ;loop break 
+                          ;now go to calculate SUM
     
     
     
