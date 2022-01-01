@@ -139,8 +139,10 @@
     MOV BL,02H            ;divisor = 2
     DIV BL                ;num/div
                           
-                          ;after dividing the num by 2
     MOV BH,00H            ;for being EVEN, remainder=00 
+                          
+                          ;after dividing the num by 2
+                          ;AH=remainder
     CMP AH,BH             ;check if rem equals 00
     JE IfEvenPushToStack  ;if the num is even put it in stack
     EvenNumPushed:
@@ -202,7 +204,7 @@
     ;-----------------------------------------------------
     ;Here,Find the total sum of every odd number to  
     ;the power of every even number of the same order.     
-    ;For this.we reverse iterate the 10length array
+    ;For this,we reverse iterate the 10 length array
     ;If found odd number,
     ;we pop the corresponding even number from stack
     ;We used Reverse iteration to maintain order
@@ -219,8 +221,13 @@
     
     Arrays:               ;loop used for reverse iteration
     
-    MOV AX,00H            ;reset AX
+    CMP SI,0              ;condition for loop break
+                          ;compare idx value and zero
     
+    JL  PrintDec          ;if idx<0 break loop & print sum
+    
+    
+    MOV AX,00H            ;reset AX
     MOV AL,NumArr[SI]     ;AX=NumArr[idx]
      
     MOV BL,02H            ;divisor = 2
@@ -245,10 +252,7 @@
     
     DEC SI                ;idx-- as we doing reverse iteration
     
-    CMP SI,0              ;condition for loop break
-                          ;compare idx value and zero
     
-    JL  PrintDec          ;if idx<0 break loop & print sum
     JMP Arrays            ;if idx>=0 ,then 
                           ;continue loop of reverse iteration
     
@@ -267,11 +271,13 @@
     MOV BH,01             ;BH=count=1                 
     
     OddToThePowerEvenLoop:
+    CMP BH,DL                ;compare counter & power value
+    JG CurrentSumCalculated  ;if (count> power) break
+    
     MUL BL                   ;currentSum=currentSum*NumArr[[idx]
     INC BH                   ;count++
     
-    CMP BH,DL                ;compare counter & power value
-    JG CurrentSumCalculated  ;if (count> power) break
+    
     JMP OddToThePowerEvenLoop;if (count<=power) continue
     
     
@@ -284,9 +290,12 @@
                            ;if there is more             
         
     
-    ;---------------------------
-    ;Printing the sum bit by bit
-    ;---------------------------
+    ;--------------------------------------
+    ;Printing the sum bit by bit     
+    ;We considered the sum is in 4 dec bits
+    ;First we will split all 4 bits
+    ;then we print them
+    ;--------------------------------------
     
     PrintDec:
     
@@ -294,38 +303,90 @@
     MOV BX,00                ;reset BX
     MOV DX,00                ;reset DX 
     
+    ;--------------
+    ;splitting bits
+    ;--------------
+    
     PrintSum:                ;sum is stored in CX
+           
+    ;---------------------------------------------------
+    ;We will extract the 1st bit 
+    ;by manullay dividing the sum by 10
+    ;and then get the remainder 
+    ;the remainder will be the 1st bit
+    ;We used manual division becuase
+    ;if the sum is big,then after dividing by 10,
+    ;the quotient we will get will be more tha FF.   
+    ;example : 2567/10 Q=256>FF(255d)  
+    ;
+    ;If the quotient is more than FF, then it
+    ;can't be stored in AL(default loaction for quotient) 
+    ;becuase AL=8 bit register so max value that can be
+    ;stored here without causing any overflow is 255d /FF
+    ;
+    ;So while manualy dividing we will store the 
+    ;quotient  in BX -will be used to extract next(2nd) bit
+    ;remainder in AX -will be pushed in STACK     
+    ;
+    ;While doing repetitive subtraction
+    ;the subtraction result will be in AX
+    ;---------------------------------------------------
+    
     MOV DX,CX                ;DX=sum
-        
-    MOV BX,00H               ;BX=quotient will be stored here
+    MOV BX,00H               ;BX=subCount=0
+                             ;it keeps track how many times we 
+                             ;could subtract 10 from the sum
+                             ;BX=quotient will be stored here
+    
     MOV AX,DX                ;AX=4 DEC bits of Sum
-    LoopFor4thBit:           ;loop for extracting 4th bit
-    CMP AX,divisor10W        ;
-    JL breakLoop
-    SUB AX,divisor10W
-    INC BX        
-    JMP LoopFor4thBit
-    breakLoop:               
-    MOV AH,AL
-    MOV AL,00
-    PUSH AX                  ;AX=remainder
+    
+    LoopFor1stBit:           ;loop for extracting 1st bit
+    
+    CMP AX,divisor10W        ;compare current subtraction result with 10
+    JL breakLoop             ;if current sub result < 10,
+                             ;then break the repetitive subtraction  
+                             
+                             ;else sub result>=10,we can subtract again
+    SUB AX,divisor10W        ;sum=sum-10
+    INC BX                   ;subCount++
+    
+    JMP LoopFor1stBit        ;continue subtracting loop
+    breakLoop:               ;manual division complete 
+    MOV AH,AL                ;the rem is in AL,we move it to AH
+    MOV AL,00                ;reset AL 
+    PUSH AX                  ;AX=remainder=1st bit=pushed to stack
     MOV DX,BX                ;BX=quotient
+    
+    ;----------------------------------------                         
+    ;DX has the quotient found from prev step  
+    ;dividing this quotient by 10
+    ;remainder=3rd bit=will be pushed to stack 
+    ;----------------------------------------
     
     MOV AX,DX                ;AX=3 DEC bits of Sum
     DIV divisor10            ;AX/10
     MOV DX,AX                ;storing the rem and quotient
     MOV AL,00                ;we just need the rem so reset AH
     PUSH AX                  ;storing the 2nd DEC bit
-    
-    MOV DH,00                ;reset DH
+    MOV DH,00                ;reset DH                         
+    ;----------------------------------------                         
+    ;DX has the quotient found from prev step  
+    ;dividing this quotient by 10
+    ;remainder=2nd bit=will be pushed to stack 
+    ;----------------------------------------
     
     MOV AX,DX                ;AX=2 DEC bits of Sum
     DIV divisor10            ;AX/10
     MOV DX,AX                ;storing the rem and quotient
     MOV AL,00                ;we just need the rem so reset AH
     PUSH AX                  ;storing the 3rd DEC bit
+    MOV DH,00                ;reset DH               
     
-    MOV DH,00                ;reset DH
+    ;----------------------------------------                         
+    ;DX has the quotient found from prev step  
+    ;dividing this quotient by 10
+    ;remainder=1st bit=will be pushed to stack 
+    ;----------------------------------------
     
     MOV AX,DX                ;AX=1 DEC bit  of Sum
     DIV divisor10            ;AX/10
@@ -333,6 +394,13 @@
     MOV AL,00                ;we just need the rem so reset AH
     PUSH AX                  ;storing the 4th DEC bit
                
+     
+    
+    ;--------------
+    ;printing bits
+    ;--------------
+    
+     
                
     ;Here 4th bit=MSB bit, 1st bit=LSB bit
     ;3rd & 2nd bits are bits in between 1st & 4th
@@ -349,7 +417,7 @@
     MOV DL,AH                ;DL=4th bit
     MOV bit4,DL              ;storing 4th bit in bit4 var
     CMP bit4,00              ;check if 4th bit is 0
-    JE SkipPrintBit4         ;if bit4 is 0,no need to pritn it
+    JE SkipPrintBit4         ;if bit4 is 0,no need to print it
                              ;if bit4 not 0,we print it    
                              
     ADD DL,30H               ;getting proper Ascii value    
@@ -360,7 +428,7 @@
     
     ;-------------------------------------------
     ;Skipping/Printing 3rd bit       
-    ;if bit3,bit4 both =0,we dont print it 
+    ;if bit3,bit4 both =0,we dont print bit3 
     ;else we print it   
     ;-------------------------------------------
     
@@ -371,19 +439,20 @@
     CMP bit3,00              ;check if 3rd bit is 0
     
     JE CheckBit4is0forPrintingBit3 ;if bit3 is 0  ,
-                             
-                             ;We check if bit4=0 too/not       
-    JG PrintBit3             ;if bit3=0 but bit4 not 0
+                                   ;We check if bit4=0 too/not 
+                                         
+    JG PrintBit3             ;if bit3=0,no need to check bit4
                              ;we print bit3
     
     CheckBit4is0forPrintingBit3:
     CMP bit4,00              ;compare bit 4 with 0
-    JE SkipPrintBit3         ;if bit4=0 too with bit3=0
+    JE SkipPrintBit3         ;if bit4=0 given that bit3=0
                              ;we skip printing bit3
                              
-    PrintBit3:               ;if bit3,bit4 both=0
-                             ;this condition not satisfied
-                             ;we print the 3rd bit
+                             ;if bit3=0 but bit4 not 0
+                             ;we print the bit3
+                             
+    PrintBit3:               ;prints bit3
                              
                               
     ADD DL,30H               ;getting proper Ascii value
@@ -406,27 +475,29 @@
     CMP bit2,00              ;check if 2nd bit is 0
     
     JE CheckBit3is0forPrintingBit2 ;if bit2 is 0    
-                             ;We check if bit3=0 too/not    
+                                   ;We check if bit3=0 too/not    
     
-    JG PrintBit2             ;if bit2=0 but bit3 not 0
+    JG PrintBit2             ;if bit2 not 0
                              ;we print bit2
                               
+   
     CheckBit3is0forPrintingBit2:
     CMP bit3,00                    ;compare bit3 with 0
     JE CheckBit4is0forPrintingBit2:;if bit3=0 
                                    ;we need to check if bit4=0 too/not
    
-    JG PrintBit2             ;if bit3 0 but bit4 not 0
+    JG PrintBit2             ;if bit3 not 0 even though bit2= 0
                              ;we need to print bit2
     
     CheckBit4is0forPrintingBit2:
     CMP bit4,00              ;compare bit4 with 0
-    JE SkipPrintBit2         ;if bit4=0 too with bit3=bit2=0
-                             ;;we skip printing bit2
+    JE SkipPrintBit2         ;if bit4=0 too ,then bit4=bit3=bit2=0
+                             ;we skip printing bit2
                              
-    PrintBit2:               ;if bit2,bit3,bit4 all 3 are 0
-                             ;this condition not satisfied
+                             ;if bit2=bit3=0 but bit4 not 0
                              ;we print the 2nd bit
+                             
+    PrintBit2:               ;prints bit2
                              
     ADD DL,30H               ;getting proper Ascii value
     MOV AH,2                 ;printing char
@@ -453,5 +524,5 @@
     MOV AX, 4C00H
     INT 21H
     
-    MAIN ENDP
+    MAIN ENDP    5
     END MAIN             
