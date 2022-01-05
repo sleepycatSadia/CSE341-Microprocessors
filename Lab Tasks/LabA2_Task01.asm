@@ -30,7 +30,7 @@
         
         MOV AH,1   ;string char input for num 2
         INT 21H    ;interrupt 
-             
+                   ;AL=num 2 input
         ADD BL,AL  ;BL = BL+AL = num1+ num2
                                                 
         MOV AH, 2
