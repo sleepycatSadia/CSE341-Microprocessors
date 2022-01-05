@@ -21,7 +21,7 @@
         LEA DX,P1  ;load effective address
         MOV AH,9   ;string output
         INT 21H    ;interrupt
-        MOV AH,1   ;string char input for First Initial
+        MOV AH,1   ;char input for First Initial
         INT 21H    ;interrupt
         MOV BH,AL  ;BH=AL=First Initial
                   
@@ -34,7 +34,7 @@
         LEA DX,P2  ;load effective address
         MOV AH,9   ;string output
         INT 21H    ;interrupt
-        MOV AH,1   ;string char input for Second Initial
+        MOV AH,1   ;char input for Second Initial
         INT 21H    ;interrupt
         MOV CH,AL  ;CH=AL=Second Initial 
         
@@ -47,7 +47,7 @@
         LEA DX,P3  ;load effective address
         MOV AH,9   ;string output
         INT 21H    ;interrupt
-        MOV AH,1   ;string char input for Third Initial
+        MOV AH,1   ;char input for Third Initial
         INT 21H    ;interrupt
         MOV CL,AL  ;CL=AL=Third Initial
         
@@ -60,7 +60,7 @@
         LEA DX,P4  ;load effective address
         MOV AH,9   ;string output
         INT 21H    ;interrupt
-        MOV AH,1   ;string char input for Last Initial
+        MOV AH,1   ;char input for Last Initial
         INT 21H    ;interrupt
         MOV BL,AL  ;BL=AL=LastInitial
         
@@ -84,28 +84,25 @@
         INT 21H    ;interrupt             
         MOV DL, 0AH;line feed
         INT 21H    ;interrupt
-            
-            
-        
-        
+
+
         MOV DL,CH  ;DL=second initial
-        MOV AH,2   ;string char output
+        MOV AH,2   ; char output
         INT 21H    ;interrupt
         MOV DL,CL  ;DL=third initial
-        MOV AH,2   ;string char output
+        MOV AH,2   ;char output
         INT 21H    ;interrupt
+
                        
         MOV AH, 2
         MOV DL, 0DH;carriage return
         INT 21H    ;interrupt             
         MOV DL, 0AH;line feed
-        INT 21H    ;interrupt
-
-        
+        INT 21H    ;interrupt      
         
         
         MOV DL,BL  ;DL=Last initial
-        MOV AH,2   ;string char output
+        MOV AH,2   ; char output
         INT 21H    ;interrupt
              
         ; YOUR CODE ENDS HERE
