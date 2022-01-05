@@ -19,7 +19,7 @@
         ; YOUR CODE STARTS HERE 
           
         
-        MOV AH,1   ;string char input for lowercase letter
+        MOV AH,1   ;char input for lowercase letter
         INT 21H    ;interrupt
         MOV DL,AL  ;DL=lowercase letter ascii value
         
@@ -31,7 +31,7 @@
         INT 21H    ;interrupt 
         
         MOV DL,BL  ;DL=BL =uppercase letter ascii value
-        MOV AH,2   ;string char output
+        MOV AH,2   ;char output
         INT 21H    ;interrupt
         
              
