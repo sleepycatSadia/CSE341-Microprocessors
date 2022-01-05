@@ -1,4 +1,4 @@
-;Final Porject Task Name : TWICE
+ ;Final Project Task Name : TWICE
 ;Take an array of length 10. 
 ;Now populate the array by taking inputs from the user.
 ;The inputs should range from 0 to 5.
@@ -19,7 +19,7 @@
 ;2nd even number = 0
 ;3rd even number = 4
 ;4th even number = 4
-;5th even number  = 2
+;5th even number = 2
 
 ;1st odd number = 5
 ;2nd odd number = 1
@@ -131,7 +131,7 @@
 
     MOV AH, 1             ;taking input of number
     INT 21H               ;interrupt         
-    MOV AH,00H            ;resettig AH    
+    MOV AH,00H            ;resetting AH    
     SUB AL,30H            ;getting original number 33 >> 3
     MOV [SI],AL           ;arr[idx]=num
           
@@ -311,16 +311,16 @@
            
     ;---------------------------------------------------
     ;We will extract the 1st bit 
-    ;by manullay dividing the sum by 10
+    ;by manually dividing the sum by 10
     ;and then get the remainder 
     ;the remainder will be the 1st bit
-    ;We used manual division becuase
+    ;We used manual division because
     ;if the sum is big,then after dividing by 10,
     ;the quotient we will get will be more tha FF.   
     ;example : 2567/10 Q=256>FF(255d)  
     ;
     ;If the quotient is more than FF, then it
-    ;can't be stored in AL(default loaction for quotient) 
+    ;can't be stored in AL(default location for quotient) 
     ;becuase AL=8 bit register so max value that can be
     ;stored here without causing any overflow is 255d /FF
     ;
